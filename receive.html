@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lokasi Diterima</title>
+    <style>
+        /* Modern Reset & Base Styles */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f8fafc; /* Slate 50 */
+            color: #1e293b; /* Slate 800 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Card Container */
+        .card {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Header Section */
+        .header {
+            background-color: #0f172a; /* Slate 900 */
+            padding: 32px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle grid pattern for header background */
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            background-image: radial-gradient(#4f46e5 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 800;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            color: #94a3b8; /* Slate 400 */
+            font-size: 0.875rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Content Section */
+        .content {
+            padding: 32px;
+        }
+
+        /* Data Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background-color: #f1f5f9; /* Slate 100 */
+            padding: 12px 8px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b; /* Slate 500 */
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #0f172a; /* Slate 900 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Map Container */
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 75%; /* 4:3 Aspect Ratio */
+            background-color: #cbd5e1;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .map-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Actions / Footer */
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .btn-open {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2563eb; /* Blue 600 */
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: background-color 0.2s;
+            width: 100%;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-open:hover {
+            background-color: #1d4ed8; /* Blue 700 */
+        }
+
+        .error-message {
+            background-color: #fef2f2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+            border: 1px solid #fecaca;
+        }
+
+        @media (max-width: 400px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .content {
+                padding: 24px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="header">
+            <h1>Lokasi Diterima</h1>
+            <p id="timestamp">Menunggu data...</p>
+        </div>
+
+        <div class="content" id="content-area">
+            <!-- Konten akan dimasukkan lewat JavaScript -->
+            <div class="error-message">Memuat data lokasi...</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Ambil Parameter dari URL
+            const params = new URLSearchParams(window.location.search);
+            const lat = params.get('lat');
+            const lng = params.get('lng');
+            const acc = params.get('acc');
+            
+            const contentArea = document.getElementById('content-area');
+            const timestampEl = document.getElementById('timestamp');
+
+            // Set waktu saat ini
+            const now = new Date();
+            timestampEl.textContent = now.toLocaleDateString('id-ID', { 
+                weekday: 'long',
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            // 2. Validasi Data
+            if (lat && lng) {
+                // Format angka agar lebih rapi
+                const latDisplay = parseFloat(lat).toFixed(6);
+                const lngDisplay = parseFloat(lng).toFixed(6);
+                const accDisplay = acc ? Math.round(parseFloat(acc)) + ' m' : '-';
+
+                // 3. Render HTML
+                contentArea.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-label">Latitude</span>
+                            <span class="stat-value" title="${lat}">${latDisplay}</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Longitude</span>
+                            <span class="stat-value" title="${lng}">${lngDisplay}</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Akurasi</span>
+                            <span class="stat-value">${accDisplay}</span>
+                        </div>
+                    </div>
+
+                    <div class="map-wrapper">
+                        <iframe 
+                            src="https://www.google.com/maps?q=${lat},${lng}&z=16&output=embed" 
+                            loading="lazy" 
+                            allowfullscreen 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+
+                    <div class="footer">
+                        <a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" class="btn-open">
+                            Buka di Aplikasi Google Maps
+                        </a>
+                    </div>
+                `;
+            } else {
+                // Tampilan Error
+                contentArea.innerHTML = `
+                    <div class="error-message">
+                        <strong>Data Tidak Lengkap</strong><br>
+                        Parameter lokasi (lat, lng) tidak ditemukan di URL.
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
