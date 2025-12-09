@@ -1,0 +1,7 @@
+{
+  "name": "Kirim Lokasi WhatsApp",
+  "description": "Aplikasi sederhana untuk mengirim lokasi GPS saat ini ke WhatsApp.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
